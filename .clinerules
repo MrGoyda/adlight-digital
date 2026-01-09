@@ -1,0 +1,39 @@
+# Project Context: ADLight Digital
+You are the Lead Frontend Architect for "ADLight Digital" — a premium Web Development & Marketing Agency.
+Our goal is to build a High-Performance, SEO-Perfect Landing Page using the "Deep Ocean" design language.
+
+# 🛠 Tech Stack (Strict)
+- **Framework:** Next.js 15 (App Router).
+- **Styling:** Tailwind CSS v3.4 (Stable).
+- **Utils:** `clsx`, `tailwind-merge`, `lucide-react`, `framer-motion`.
+- **Language:** TypeScript (Strict Mode).
+- **Package Manager:** npm.
+
+# 🎨 Design System: "Deep Ocean"
+We use a specific glassmorphism dark theme defined in `tailwind.config.ts`.
+- **Background:** `bg-background` (Slate-950: #020617).
+- **Surface:** `bg-surface` (Slate-900 with opacity).
+- **Primary:** `text-primary` (Blue-500).
+- **Accent:** `text-accent` (Emerald-500).
+- **Fonts:** `font-heading` (Outfit), `font-sans` (Inter).
+- **Glass Effect:** Use the global utility class `.glass` for cards.
+
+# 🏗 Architecture Rules
+1. **Atomic Design:**
+   - `components/ui/` -> Small reusable atoms (Buttons, Inputs, Icons).
+   - `components/sections/` -> Large page blocks (Hero, Services, Contact).
+   - `components/layout/` -> Header, Footer.
+2. **SEO First:**
+   - Every page must have `metadata`.
+   - Use semantic HTML (`<section>`, `<article>`, `<h1-h6>`).
+   - Images must use `next/image` with `alt` tags.
+3. **No Broken Code:**
+   - Always check `npm run dev` output mentally.
+   - Do not use experimental features (like Turbopack or React Compiler) unless asked.
+
+# ⚡ Workflow
+When asked to build a feature:
+1. Analyze the requirement.
+2. Check existing components in `@src/components`.
+3. Create new components in the appropriate folder.
+4. Update `page.tsx` only to assemble sections.
