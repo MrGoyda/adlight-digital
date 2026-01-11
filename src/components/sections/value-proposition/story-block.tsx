@@ -16,13 +16,9 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isLast = index === total - 1; 
 
-  // 1. БЕРЕМ ГЛОБАЛЬНЫЙ СКРОЛЛ ВСЕЙ СТРАНИЦЫ
   const { scrollY } = useScroll();
-  
-  // Храним координаты: где анимация должна начаться и где закончиться
   const [scrollRange, setScrollRange] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
 
-  // 2. РАСЧЕТ КООРДИНАТ (Железобетонный метод)
   useLayoutEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -31,8 +27,6 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
       let offsetTop = 0;
       let node: HTMLElement | null = element;
 
-      // Складываем все отступы родителей, чтобы найти точную позицию от верха страницы (0px)
-      // offsetTop возвращает "статичную" позицию, игнорируя sticky-эффект. Это то, что нам нужно.
       while (node) {
         offsetTop += node.offsetTop;
         node = node.offsetParent as HTMLElement;
@@ -40,32 +34,21 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
 
       const windowHeight = window.innerHeight;
 
-      // start: Когда верх блока доезжает до верха экрана.
-      // end: Когда мы проскроллили еще ровно одну высоту экрана (блок полностью перекрыт следующим).
       setScrollRange({
         start: offsetTop,
         end: offsetTop + windowHeight
       });
     };
 
-    // Считаем сразу
     calculatePosition();
 
-    // Пересчитываем, если что-то изменилось на странице
     const resizeObserver = new ResizeObserver(() => calculatePosition());
     resizeObserver.observe(document.body);
 
     return () => resizeObserver.disconnect();
   }, []);
 
-  // 3. ПРИВЯЗЫВАЕМ АНИМАЦИЮ К ГЛОБАЛЬНЫМ ЦИФРАМ
-  // Теперь Framer Motion не смотрит на элемент, он смотрит тупо на пиксели скролла.
-  // Если мы между start и end -> меняем значения.
-  
-  // Scale: 1 -> 0.90
   const scale = useTransform(scrollY, [scrollRange.start, scrollRange.end], [1, isLast ? 1 : 0.90]);
-  
-  // Overlay: 0 -> 0.8 (Черная шторка)
   const overlayOpacity = useTransform(scrollY, [scrollRange.start, scrollRange.end], [0, isLast ? 0 : 0.8]);
 
   const getHighlightColor = (id: string) => {
@@ -80,7 +63,7 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
 
   return (
     <>
-      {/* ФАНТОМНЫЙ ЯКОРЬ (Для навигации по ссылкам) */}
+      {/* ФАНТОМНЫЙ ЯКОРЬ */}
       <span 
         id={data.id} 
         className="block h-0 w-full -mt-[10vh] pointer-events-none invisible"
@@ -97,7 +80,7 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
           className="relative w-full h-full bg-slate-950 flex flex-col lg:flex-row overflow-hidden border-t border-white/10 shadow-2xl origin-top will-change-transform"
         >
           
-          {/* ⚫️ ЧЕРНАЯ ШТОРКА (Z-50) */}
+          {/* ЧЕРНАЯ ШТОРКА (Z-50) */}
           <motion.div 
             style={{ opacity: overlayOpacity }}
             className="absolute inset-0 bg-black z-50 pointer-events-none"
@@ -107,7 +90,11 @@ export const StoryBlock = ({ data, index, total }: StoryBlockProps) => {
           <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none z-0" />
 
           {/* КОНТЕНТ (Z-10) */}
-          <div className="relative w-full h-full flex flex-col lg:flex-row z-10">
+          {/* 🔥 FIX: Добавили pt-20 md:pt-28.
+              Это сдвигает весь контент (визуал и текст) вниз,
+              освобождая место для Sticky Header.
+          */}
+          <div className="relative w-full h-full flex flex-col lg:flex-row z-10 pt-20 md:pt-28">
               
               {/* VISUAL */}
               <div className="relative h-[40%] lg:h-full lg:flex-1 lg:order-2 w-full flex items-center justify-center bg-slate-900/50 lg:bg-transparent overflow-hidden border-b border-white/5 lg:border-b-0">
