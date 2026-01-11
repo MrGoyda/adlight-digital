@@ -3,6 +3,8 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
+// 1. Импортируем модалку
+import { ContactModal } from "@/components/modules/contact-modal";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -25,12 +27,14 @@ export default function RootLayout({
         outfit.variable
       )}>
         
-        {/* ВСТАВИТЬ СЮДА */}
         <Header />
         
         <main className="relative flex min-h-screen flex-col">
            {children}
         </main>
+        
+        {/* 2. Размещаем модалку глобально */}
+        <ContactModal />
         
       </body>
     </html>

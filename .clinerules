@@ -8,6 +8,7 @@ The project is hosted on GitHub. We prioritize stability, SEO, scalable architec
 - **Styling:** Tailwind CSS v3.4 (Stable). DO NOT use v4 features.
 - **Icons:** `lucide-react`.
 - **Animations:** `framer-motion` (Use strict typing: `import { type Variants } from "framer-motion"`).
+- **State Management:** `zustand` (Global UI Store).
 - **Utils:** `clsx`, `tailwind-merge` (via `cn()` helper in `@/lib/utils`).
 - **Language:** TypeScript (Strict Mode).
 
@@ -15,28 +16,27 @@ The project is hosted on GitHub. We prioritize stability, SEO, scalable architec
 We strictly follow a modular architecture to separate Data, Logic, and View.
 
 1. **`src/data/`** -> **Single Source of Truth.**
-   - All text content, arrays, pricing, and configuration must reside here.
-   - Example: `src/data/services.data.ts`, `src/data/hero.data.ts`.
+   - All text content, arrays, pricing, form labels, and configuration must reside here.
+   - Example: `src/data/services.data.ts`, `src/data/contact.data.ts`, `src/data/navigation.data.ts`, `src/data/value-proposition.data.ts`.
    - *Rule:* Never hardcode text inside components.
 
 2. **`src/types/`** -> **Shared Interfaces.**
-   - centralized types in `src/types/index.ts` (e.g., `ServiceData`, `FeatureId`).
+   - Centralized types in `src/types/index.ts` (e.g., `ServiceData`, `ContactFormData`, `FeatureId`, `ValueStoryBlock`).
 
-3. **`src/components/modules/`** -> **Smart, Reusable Logic.**
+3. **`src/store/`** -> **Global State.**
+   - `ui-store.ts`: Manages Modals (Contact, Features) and Mobile Menu state to avoid prop drilling.
+
+4. **`src/components/modules/`** -> **Smart, Reusable Logic.**
    - Self-contained components with internal state/logic.
-   - Example: `action-module.tsx` (Phone Input Button), `consultation-form.tsx`.
+   - Example: `contact-modal.tsx` (Lead Capture), `action-module.tsx`.
 
-4. **`src/components/ui/`** -> **Dumb Atoms.**
+5. **`src/components/ui/`** -> **Dumb Atoms.**
    - Visual primitives without business logic.
-   - Example: `tech-tooltip.tsx`, `glass-card.tsx`.
+   - Example: `custom-select.tsx` (Hybrid Mobile/Desktop Dropdown), `tech-tooltip.tsx`.
 
-5. **`src/components/sections/`** -> **Page Blocks.**
+6. **`src/components/sections/`** -> **Page Blocks.**
    - Each section is a **FOLDER** with an `index.tsx` entry point.
-   - Structure:
-     - `src/components/sections/hero/`
-       - `index.tsx` (Assembly)
-       - `hero-background.tsx` (Visuals)
-       - `animated-counter.tsx` (Specific logic)
+   - Complex sections (e.g., Value Proposition) are split into logical sub-units: `story-block.tsx`, `visuals-wrapper.tsx`.
 
 # 🎨 Design System: "Deep Ocean Tech"
 - **Background:** `bg-background` (Slate-950: #020617).
@@ -51,50 +51,63 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 # ⚡ Animation & Interaction Rules (Strict Physics)
 
 1. **The "No-Jitter" Rule (Layout Animations):**
-   - When using Framer Motion `layout` prop: **NEVER** use CSS `transition-all` on the same element. It causes conflict and jitter.
-   - Use `animate={{ flex: ... }}` instead of changing Tailwind classes for smooth resizing.
+   - When using Framer Motion `layout`: **NEVER** use CSS `transition-all` on the same element.
+   - Use `animate={{ flex: ... }}` or `animate={{ height: ... }}` for smooth resizing.
 
-2. **Accordion/Expansion Logic (Services Section):**
-   - **Absolute Pinning:** To prevent vertical jumping during expansion, pin static elements (Icons, Titles) using `absolute` positioning within the card.
-   - **Fixed Width Content:** To prevent Text Reflow (line breaking changes during animation), wrap text in a `min-w-[...]` or fixed width container inside the animated block.
+2. **Modal Windows (Global Logic):**
+   - **Scroll Lock:** When opening a modal, add `padding-right` to `body` AND `#main-header` equal to `window.innerWidth - document.documentElement.clientWidth` to prevent layout shift.
+   - **Positioning:** Modals reside in `layout.tsx` (Global) and are controlled via `useUIStore`.
 
-3. **Modal Windows (ValueProposition):**
-   - **Scroll Lock:** When opening a modal, add `padding-right` to `body` AND `#main-header` equal to the scrollbar width (approx 17px) to prevent layout shift.
-   - **Transition Fix:** Temporarily disable CSS transitions on the Header when locking scroll to prevent "floating" header effect.
+3. **Mobile-First UX (Custom Select):**
+   - **Hybrid Logic:** On Desktop, Dropdowns are `absolute` (floating). On Mobile, they are `relative` (accordion-style) to prevent clipping and scrolling issues.
+   - **Touch Feedback:** Use `active:scale-[0.98]` or `active:bg-white/10` for mobile elements.
 
-4. **Interactive Buttons (ActionModule):**
-   - **Soft Landing:** Avoid `y` axis movement + `scale` simultaneously if it looks jerky. Use `opacity` + subtle `scale` for smooth element swapping (Button -> Input).
-   - **Haptic:** Use `navigator.vibrate(50)` on interactions.
+4. **Interactive Buttons:**
+   - **Soft Landing:** Avoid simultaneous `y` axis movement + `scale`.
+   - **Haptic:** Use `navigator.vibrate(50)` on critical interactions.
+
+5. **The "Sticky Stack" Pattern (Storytelling Scroll):**
+   - **Calculation:** DO NOT use `useScroll({ target: ref })` for sticky elements (it fails to track scroll when element is pinned).
+   - **Global Math Strategy:** Use `useLayoutEffect` to calculate the absolute `offsetTop` of the element relative to the document (looping through `offsetParent`). Compare this static range against global `scrollY`.
+   - **Resilience:** Wrap calculations in `ResizeObserver(document.body)` to handle dynamic content loading (images/banners) that shifts layout.
+   - **Mobile Height:** Always use `h-[100dvh]` (Dynamic Viewport Height) for full-screen sections to handle mobile browser address bars.
+
+6. **Phantom Anchors (Navigation Fix):**
+   - **Problem:** Native scrolling to `id` fails on sticky/stacked elements because the browser miscalculates the target position.
+   - **Solution:** NEVER put the `id` on the sticky container itself. Place an invisible `span` with `className="block h-0 -mt-[10vh]"` *immediately before* the sticky component. Link to this phantom anchor.
+   - **Header Logic:** Use `document.getElementById(id).scrollIntoView({ behavior: "smooth" })` instead of Next.js default routing for hash links.
+
+7. **Dimming & Layering Strategy:**
+   - **Overlay Method:** To darken a card when it moves to the background, do NOT use CSS filters (performance issue) or content opacity (visual merging issue).
+   - **Z-Index Stack:**
+     1. Background/Noise (Bottom).
+     2. Content (Text/Visuals) (`z-10`).
+     3. **Black Overlay** (`bg-black`, `z-50`, `pointer-events-none`).
+   - **Animation:** Animate the opacity of the Black Overlay from 0 to 0.8 based on scroll progress.
 
 # ✅ Current Project Status
 
-1. **Header:** (`src/components/layout/Header.tsx`)
-   - ID: `#main-header` (Crucial for modal logic).
-   - Links moved to `src/data/navigation.data.ts`.
-
-2. **Hero Section:** (`src/components/sections/hero/`)
-   - **Refactored & Modularized.**
-   - Mobile Padding: `pt-36 pb-6` (Optimized for air).
-   - Desktop Padding: `lg:pt-40 lg:pb-20`.
-   - Features: Mouse Spotlight, Floating Cards (Desktop), Clean Stack (Mobile).
-
-3. **Value Proposition:** (`src/components/sections/value-proposition/`)
-   - **Refactored & Modularized.**
-   - Logic: `FeatureDetailsModal` with Scroll-Lock Fix.
-   - Visuals: SVG Graphs (ROI, Speed, UX) separated into `visuals.tsx`.
-
-4. **Services Section:** (`src/components/sections/services/`)
-   - **Refactored & Modularized.**
-   - Layout: Stable Accordion (Desktop) / Sticky Stack (Mobile).
-   - Physics: Spring `stiffness: 100, damping: 20`.
-   - Data: `src/data/services.data.ts`.
+1. **Global Store:** (`src/store/ui-store.ts`) - Implemented. Manages `isContactModalOpen` and `activeFeature`.
+2. **Header:** (`src/components/layout/Header.tsx`) - **COMPLETED**.
+   - Features: Smart Scroll (Glass effect), Mobile Menu, Data-driven Navigation.
+   - **Update:** Integrated `handleScroll` logic to support Phantom Anchors and smooth scrolling for Sticky sections.
+3. **Contact Modal:** (`src/components/modules/contact-modal.tsx`) - **COMPLETED & FIXED**.
+   - **Lead Capture Terminal:** Glassmorphism, Left/Right layout.
+   - **Logic:** Masked Phone Input (+7...), Validation, Custom Select (Hybrid Mobile/Desktop), Success State.
+   - **Fixes:** No-Jitter Scroll Lock, Mobile "Trust Block" added.
+4. **Hero Section:** (`src/components/sections/hero/`) - **COMPLETED**.
+5. **Value Proposition:** (`src/components/sections/value-proposition/`) - **COMPLETED**.
+   - **Architecture:** Refactored from Bento Grid to **Sticky Storytelling Scroll**.
+   - **Components:** `StoryBlock` (Universal Mobile/Desktop logic), `VisualAdapter` (3D Glassmorphism).
+   - **Tech:** Uses Global Scroll Calculation, ResizeObservers, and Phantom Anchors for rock-solid stability.
+6. **Services Section:** (`src/components/sections/services/`) - **COMPLETED**.
+   - Data updated with `hex` and `hoverColor` for Tailwind JIT compatibility.
+   - Mobile Accordion / Desktop Expansion logic stable.
 
 # 🚀 Workflow for New Tasks
-
-When asked to build a new section (e.g., Cases/Portfolio):
-
-1.  **Define Data First:** Create `src/data/cases.data.ts` and define TypeScript interfaces in `src/types/index.ts`.
-2.  **Create Components:** Create a folder `src/components/sections/cases/`.
-3.  **Modularize:** Split logic (Desktop Grid vs Mobile Slider) into separate files.
-4.  **Style:** Apply "Deep Ocean" styles (gradients, noise textures, glass borders).
-5.  **Assemble:** Export via `index.tsx` and import in `page.tsx`.
+When asked to build a new section:
+1. Define Data (`src/data/`) and Types (`src/types/`).
+2. Modularize logic into `components/sections/`.
+3. Apply "Deep Ocean" styles.
+4. If using Sticky effects, apply the **Global Math Strategy** (Rule #5) and **Phantom Anchors** (Rule #6).
+5. Export via `index.tsx`.

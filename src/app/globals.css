@@ -6,6 +6,11 @@
   body {
     @apply bg-background text-slate-100 antialiased;
   }
+  html {
+    /* Это заставит браузер плавно скроллить до якоря, 
+       запуская все наши анимации по пути */
+    scroll-behavior: smooth !important;
+  }
 }
 
 @layer utilities {

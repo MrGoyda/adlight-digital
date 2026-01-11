@@ -19,7 +19,10 @@ export const SERVICES_DATA: ServiceData[] = [
       { name: "React", iconSrc: "/tech/react.webp", tooltip: "Реактивный интерфейс" },
       { name: "Framer", iconSrc: "/tech/framer.webp", tooltip: "Плавная физика" },
     ],
+    // VISUALS FIX
     color: "bg-blue-500",
+    hoverColor: "hover:bg-blue-500", // Явный класс
+    hex: "#3b82f6", // Реальный HEX для градиента
     gradient: "from-blue-600/20 to-cyan-500/20",
     border: "group-hover:border-blue-500/50",
     shadow: "shadow-blue-500/20"
@@ -38,6 +41,8 @@ export const SERVICES_DATA: ServiceData[] = [
       { name: "PostgreSQL", iconSrc: "/tech/postgres.webp", tooltip: "База данных" },
     ],
     color: "bg-emerald-500",
+    hoverColor: "hover:bg-emerald-500",
+    hex: "#10b981",
     gradient: "from-emerald-600/20 to-teal-500/20",
     border: "group-hover:border-emerald-500/50",
     shadow: "shadow-emerald-500/20"
@@ -56,6 +61,8 @@ export const SERVICES_DATA: ServiceData[] = [
       { name: "PostgreSQL", iconSrc: "/tech/postgres.webp", tooltip: "High-load база" },
     ],
     color: "bg-violet-500",
+    hoverColor: "hover:bg-violet-500",
+    hex: "#8b5cf6",
     gradient: "from-violet-600/20 to-purple-500/20",
     border: "group-hover:border-violet-500/50",
     shadow: "shadow-violet-500/20"
@@ -74,6 +81,8 @@ export const SERVICES_DATA: ServiceData[] = [
       { name: "Analytics", iconSrc: "/tech/analytics.webp", tooltip: "Сквозной трекинг" },
     ],
     color: "bg-amber-500",
+    hoverColor: "hover:bg-amber-500",
+    hex: "#f59e0b",
     gradient: "from-amber-600/20 to-orange-500/20",
     border: "group-hover:border-amber-500/50",
     shadow: "shadow-amber-500/20"

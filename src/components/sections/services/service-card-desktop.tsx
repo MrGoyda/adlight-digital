@@ -18,6 +18,11 @@ interface Props {
 }
 
 export function ServiceCardDesktop({ data, isActive, onActivate, onMouseMove, globalPhone, setGlobalPhone }: Props) {
+  
+  // Преобразование hex в rgb для использования в градиенте с прозрачностью
+  // Или просто используем hex, если прозрачность не нужна, но для radial-gradient лучше rgb
+  // Простой хак: используем HEX напрямую в gradient string, так как браузеры это поддерживают
+  
   return (
     <motion.div
       layout
@@ -32,15 +37,19 @@ export function ServiceCardDesktop({ data, isActive, onActivate, onMouseMove, gl
       className={cn(
         "relative h-full rounded-3xl border bg-slate-900/60 backdrop-blur-xl overflow-hidden cursor-pointer group",
         isActive ? "border-white/20 shadow-2xl" : "border-white/5 hover:bg-white/10 hover:border-white/10",
-        isActive && data.shadow,
-        data.border
+        isActive && data.shadow, // Тень теперь подтянется, так как класс полный в data
+        data.border // Бордер тоже
       )}
       style={{ "--mouse-x": "50%", "--mouse-y": "50%" } as React.CSSProperties}
     >
-      {/* Spotlight & Gradient */}
+      {/* Spotlight & Gradient (FIXED) */}
       <div 
         className={cn("pointer-events-none absolute inset-0 z-0 transition-opacity duration-500", isActive ? "opacity-100" : "opacity-0 group-hover:opacity-30")}
-        style={{ background: `radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), ${data.color.replace("bg-", "rgba(").replace("500", "500, 0.15)")}, transparent 40%)` }}
+        style={{ 
+          // ИСПОЛЬЗУЕМ HEX ВМЕСТО НЕВАЛИДНОГО 'rgba(bg-blue-500...)'
+          background: `radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), ${data.hex}26, transparent 40%)` 
+          // ${data.hex}26 - это добавление 15% прозрачности к HEX коду
+        }}
       />
       <div className={cn("absolute inset-0 bg-gradient-to-b opacity-0 transition-opacity duration-500", data.gradient, isActive ? "opacity-100" : "opacity-0")} />
 
@@ -91,14 +100,12 @@ export function ServiceCardDesktop({ data, isActive, onActivate, onMouseMove, gl
               exit={{ opacity: 0, y: 10, filter: "blur(4px)", transition: { duration: 0.2 } }}
               transition={{ delay: 0.15, duration: 0.4 }}
             >
-               {/* FIX: Fixed width container */}
                <div className="w-[460px]"> 
                   <div className="mb-6">
                     <h3 className="text-4xl font-heading font-bold text-white mb-2 whitespace-nowrap">{data.title}</h3>
                     <p className={cn("text-sm font-bold uppercase tracking-widest mb-4 bg-clip-text text-transparent bg-gradient-to-r whitespace-nowrap", data.color === "bg-blue-500" ? "from-blue-400 to-cyan-200" : (data.color === "bg-emerald-500" ? "from-emerald-400 to-teal-200" : (data.color === "bg-violet-500" ? "from-violet-400 to-purple-200" : "from-amber-400 to-orange-200")))}>
                       // {data.tagline}
                     </p>
-                    {/* FIX: Fixed width text */}
                     <p className="text-slate-300 text-base leading-relaxed w-[420px]">{data.desc}</p>
                   </div>
 
@@ -117,7 +124,11 @@ export function ServiceCardDesktop({ data, isActive, onActivate, onMouseMove, gl
                       <div className="flex items-center gap-3">
                         {data.techSpecs.map((spec, i) => (
                           <TechTooltip key={i} text={spec.tooltip}>
-                            <div className={cn("relative w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 transition-all duration-300 group/icon cursor-help overflow-hidden", `hover:${data.color} hover:border-transparent`)}>
+                            {/* FIX: ИСПОЛЬЗУЕМ data.hoverColor вместо интерполяции */}
+                            <div className={cn(
+                                "relative w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-2 transition-all duration-300 group/icon cursor-help overflow-hidden",
+                                `${data.hoverColor} hover:border-transparent`
+                            )}>
                               <Image src={spec.iconSrc} alt={spec.name} width={24} height={24} className="w-full h-full object-contain grayscale group-hover/icon:grayscale-0 transition-all duration-300 opacity-80 group-hover/icon:opacity-100" />
                             </div>
                           </TechTooltip>
