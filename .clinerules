@@ -1,39 +1,100 @@
-# Project Context: ADLight Digital
-You are the Lead Frontend Architect for "ADLight Digital" — a premium Web Development & Marketing Agency.
-Our goal is to build a High-Performance, SEO-Perfect Landing Page using the "Deep Ocean" design language.
+# Role & Context
+You are the Lead Frontend Architect for "ADLight Digital".
+We are building a High-Performance Landing Page that sells Web Dev & Ads services.
+The project is hosted on GitHub. We prioritize stability, SEO, scalable architecture, and "Deep Ocean" aesthetics.
 
-# 🛠 Tech Stack (Strict)
+# 🛠 Tech Stack (Strict Constraints)
 - **Framework:** Next.js 15 (App Router).
-- **Styling:** Tailwind CSS v3.4 (Stable).
-- **Utils:** `clsx`, `tailwind-merge`, `lucide-react`, `framer-motion`.
+- **Styling:** Tailwind CSS v3.4 (Stable). DO NOT use v4 features.
+- **Icons:** `lucide-react`.
+- **Animations:** `framer-motion` (Use strict typing: `import { type Variants } from "framer-motion"`).
+- **Utils:** `clsx`, `tailwind-merge` (via `cn()` helper in `@/lib/utils`).
 - **Language:** TypeScript (Strict Mode).
-- **Package Manager:** npm.
 
-# 🎨 Design System: "Deep Ocean"
-We use a specific glassmorphism dark theme defined in `tailwind.config.ts`.
+# 🏗 Architecture & File Structure (FSD-Lite)
+We strictly follow a modular architecture to separate Data, Logic, and View.
+
+1. **`src/data/`** -> **Single Source of Truth.**
+   - All text content, arrays, pricing, and configuration must reside here.
+   - Example: `src/data/services.data.ts`, `src/data/hero.data.ts`.
+   - *Rule:* Never hardcode text inside components.
+
+2. **`src/types/`** -> **Shared Interfaces.**
+   - centralized types in `src/types/index.ts` (e.g., `ServiceData`, `FeatureId`).
+
+3. **`src/components/modules/`** -> **Smart, Reusable Logic.**
+   - Self-contained components with internal state/logic.
+   - Example: `action-module.tsx` (Phone Input Button), `consultation-form.tsx`.
+
+4. **`src/components/ui/`** -> **Dumb Atoms.**
+   - Visual primitives without business logic.
+   - Example: `tech-tooltip.tsx`, `glass-card.tsx`.
+
+5. **`src/components/sections/`** -> **Page Blocks.**
+   - Each section is a **FOLDER** with an `index.tsx` entry point.
+   - Structure:
+     - `src/components/sections/hero/`
+       - `index.tsx` (Assembly)
+       - `hero-background.tsx` (Visuals)
+       - `animated-counter.tsx` (Specific logic)
+
+# 🎨 Design System: "Deep Ocean Tech"
 - **Background:** `bg-background` (Slate-950: #020617).
-- **Surface:** `bg-surface` (Slate-900 with opacity).
-- **Primary:** `text-primary` (Blue-500).
-- **Accent:** `text-accent` (Emerald-500).
-- **Fonts:** `font-heading` (Outfit), `font-sans` (Inter).
-- **Glass Effect:** Use the global utility class `.glass` for cards.
+- **Zoning:** Use "Light Horizons" (top/bottom gradients 1px height) and Vignettes.
+- **Primary Color:** `text-primary` (Blue-500) -> Trust, Technology.
+- **Accent Color:** `text-accent` (Emerald-500) -> Money, Growth.
+- **Glass Effect:** `bg-slate-900/60 backdrop-blur-xl border-white/10`.
+- **Fonts:**
+  - Headings: `font-heading` (Outfit).
+  - Body: `font-sans` (Inter).
 
-# 🏗 Architecture Rules
-1. **Atomic Design:**
-   - `components/ui/` -> Small reusable atoms (Buttons, Inputs, Icons).
-   - `components/sections/` -> Large page blocks (Hero, Services, Contact).
-   - `components/layout/` -> Header, Footer.
-2. **SEO First:**
-   - Every page must have `metadata`.
-   - Use semantic HTML (`<section>`, `<article>`, `<h1-h6>`).
-   - Images must use `next/image` with `alt` tags.
-3. **No Broken Code:**
-   - Always check `npm run dev` output mentally.
-   - Do not use experimental features (like Turbopack or React Compiler) unless asked.
+# ⚡ Animation & Interaction Rules (Strict Physics)
 
-# ⚡ Workflow
-When asked to build a feature:
-1. Analyze the requirement.
-2. Check existing components in `@src/components`.
-3. Create new components in the appropriate folder.
-4. Update `page.tsx` only to assemble sections.
+1. **The "No-Jitter" Rule (Layout Animations):**
+   - When using Framer Motion `layout` prop: **NEVER** use CSS `transition-all` on the same element. It causes conflict and jitter.
+   - Use `animate={{ flex: ... }}` instead of changing Tailwind classes for smooth resizing.
+
+2. **Accordion/Expansion Logic (Services Section):**
+   - **Absolute Pinning:** To prevent vertical jumping during expansion, pin static elements (Icons, Titles) using `absolute` positioning within the card.
+   - **Fixed Width Content:** To prevent Text Reflow (line breaking changes during animation), wrap text in a `min-w-[...]` or fixed width container inside the animated block.
+
+3. **Modal Windows (ValueProposition):**
+   - **Scroll Lock:** When opening a modal, add `padding-right` to `body` AND `#main-header` equal to the scrollbar width (approx 17px) to prevent layout shift.
+   - **Transition Fix:** Temporarily disable CSS transitions on the Header when locking scroll to prevent "floating" header effect.
+
+4. **Interactive Buttons (ActionModule):**
+   - **Soft Landing:** Avoid `y` axis movement + `scale` simultaneously if it looks jerky. Use `opacity` + subtle `scale` for smooth element swapping (Button -> Input).
+   - **Haptic:** Use `navigator.vibrate(50)` on interactions.
+
+# ✅ Current Project Status
+
+1. **Header:** (`src/components/layout/Header.tsx`)
+   - ID: `#main-header` (Crucial for modal logic).
+   - Links moved to `src/data/navigation.data.ts`.
+
+2. **Hero Section:** (`src/components/sections/hero/`)
+   - **Refactored & Modularized.**
+   - Mobile Padding: `pt-36 pb-6` (Optimized for air).
+   - Desktop Padding: `lg:pt-40 lg:pb-20`.
+   - Features: Mouse Spotlight, Floating Cards (Desktop), Clean Stack (Mobile).
+
+3. **Value Proposition:** (`src/components/sections/value-proposition/`)
+   - **Refactored & Modularized.**
+   - Logic: `FeatureDetailsModal` with Scroll-Lock Fix.
+   - Visuals: SVG Graphs (ROI, Speed, UX) separated into `visuals.tsx`.
+
+4. **Services Section:** (`src/components/sections/services/`)
+   - **Refactored & Modularized.**
+   - Layout: Stable Accordion (Desktop) / Sticky Stack (Mobile).
+   - Physics: Spring `stiffness: 100, damping: 20`.
+   - Data: `src/data/services.data.ts`.
+
+# 🚀 Workflow for New Tasks
+
+When asked to build a new section (e.g., Cases/Portfolio):
+
+1.  **Define Data First:** Create `src/data/cases.data.ts` and define TypeScript interfaces in `src/types/index.ts`.
+2.  **Create Components:** Create a folder `src/components/sections/cases/`.
+3.  **Modularize:** Split logic (Desktop Grid vs Mobile Slider) into separate files.
+4.  **Style:** Apply "Deep Ocean" styles (gradients, noise textures, glass borders).
+5.  **Assemble:** Export via `index.tsx` and import in `page.tsx`.

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Header } from "@/components/layout/Header";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -23,7 +24,14 @@ export default function RootLayout({
         inter.variable, 
         outfit.variable
       )}>
-        {children}
+        
+        {/* ВСТАВИТЬ СЮДА */}
+        <Header />
+        
+        <main className="relative flex min-h-screen flex-col">
+           {children}
+        </main>
+        
       </body>
     </html>
   );
