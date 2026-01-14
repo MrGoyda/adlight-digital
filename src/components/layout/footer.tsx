@@ -22,22 +22,31 @@ export function Footer() {
   return (
     <footer className="relative w-full overflow-hidden border-t border-white/5 bg-slate-950 pt-16 pb-8" id="contacts">
       
-      {/* --- BACKGROUND FX --- */}
-      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.03] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[40vw] h-[300px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* --- BACKGROUND FX (RESTORED) --- */}
+      {/* 1. Grid Pattern */}
+      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.05] pointer-events-none" />
+      
+      {/* 2. THE HORIZON GLOW (Вернули центральное свечение) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70vw] h-[350px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
+      
+      {/* 3. SECONDARY GLOW (Bottom Right - для объема) */}
+      <div className="absolute bottom-0 right-0 w-[40vw] h-[300px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
+
 
       <div className="container mx-auto px-4 relative z-10">
         
-        {/* ==================== PART 1: MEGA CTA (Compact Version) ==================== */}
-        {/* Сделали чуть компактнее, чтобы не занимало 2 экрана на мобайле */}
-        <div className="flex flex-col items-center text-center mb-16 border-b border-white/5 pb-16">
+        {/* ==================== PART 1: MEGA CTA ==================== */}
+        <div className="flex flex-col items-center text-center mb-16 border-b border-white/5 pb-16 relative">
+          {/* Доп. блик на линии разделителя */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="max-w-2xl space-y-6"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-heading tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-white font-heading tracking-tight drop-shadow-lg">
               {cta.title}
             </h2>
             <p className="text-slate-400 max-w-lg mx-auto">
@@ -48,7 +57,9 @@ export function Footer() {
               onClick={() => openContactModal(cta.subject)}
               className="group relative inline-flex items-center gap-3 px-8 py-4 text-base font-semibold text-white transition-all duration-300 mt-4"
             >
-              <div className="absolute inset-0 rounded-xl bg-blue-600 shadow-lg shadow-blue-500/20 group-hover:bg-blue-500 group-hover:scale-[1.02] transition-all" />
+              {/* Button Glow */}
+              <div className="absolute inset-0 rounded-xl bg-blue-600 shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] group-hover:bg-blue-500 group-hover:shadow-[0_0_30px_-5px_rgba(37,99,235,0.6)] group-hover:scale-[1.02] transition-all" />
+              
               <span className="relative z-10">{cta.buttonText}</span>
               <ArrowUpRight className="relative z-10 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" size={18} />
             </button>
@@ -58,20 +69,19 @@ export function Footer() {
         {/* ==================== PART 2: THE GRID ==================== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
           
-          {/* --- BRAND COLUMN (Лого + Инфо) --- */}
+          {/* --- BRAND COLUMN --- */}
           <div className="lg:col-span-4 space-y-6">
             <div>
               <div className="font-heading text-2xl font-bold text-white mb-4">
-                ADLight<span className="text-blue-500">.</span>
+                ADLight<span className="text-blue-500"> Digital</span>
               </div>
               <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
                 {companyInfo.description}
               </p>
             </div>
 
-            {/* Контакты в колонке бренда */}
             <div className="space-y-3 pt-2">
-               <a href={companyInfo.phone.href} className="flex items-center gap-3 text-slate-200 hover:text-white transition-colors group p-3 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30">
+               <a href={companyInfo.phone.href} className="flex items-center gap-3 text-slate-200 hover:text-white transition-colors group p-3 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 hover:shadow-[0_0_15px_-5px_rgba(59,130,246,0.3)]">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                   <Phone size={16} />
                 </div>
@@ -101,9 +111,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* --- LINKS COLUMNS (Сетка 2 колонки на мобайле, 8 на десктопе) --- */}
+          {/* --- LINKS COLUMNS --- */}
           <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
-            
             {columns.map((col, idx) => (
               <div key={idx} className="space-y-6">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-l-2 border-blue-500/20 pl-3">
@@ -126,7 +135,6 @@ export function Footer() {
                               : "text-slate-400 hover:text-white"
                           )}
                         >
-                          {/* Если это колонка Технологии (есть иконки) - делаем красивый виджет */}
                           {LinkIcon ? (
                              <div className="flex items-center gap-3 w-full p-2 -ml-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <div className="flex h-7 w-7 items-center justify-center rounded bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-500/10 transition-colors">
@@ -135,7 +143,6 @@ export function Footer() {
                                 <span>{link.label}</span>
                              </div>
                           ) : (
-                            /* Обычная ссылка */
                             <>
                               <span className="w-1 h-1 rounded-full bg-slate-700 group-hover:bg-blue-500 transition-colors" />
                               <span className="group-hover:translate-x-1 transition-transform inline-block">
@@ -150,7 +157,6 @@ export function Footer() {
                 </ul>
               </div>
             ))}
-
           </div>
         </div>
 

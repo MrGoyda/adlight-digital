@@ -13,6 +13,7 @@ The project is hosted on GitHub. We prioritize stability, SEO, scalable architec
 * **State Management:** `zustand` (Global UI Store).
 * **Utils:** `clsx`, `tailwind-merge` (via `cn()` helper in `@/lib/utils`).
 * **Language:** TypeScript (Strict Mode).
+* **Backend/API:** Next.js API Routes (Serverless Functions).
 
 # 🏗 Architecture & File Structure (FSD-Lite)
 
@@ -46,6 +47,10 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 * Example: `ecosystem/` contains `visuals-wrapper.tsx` and `metric-card.tsx`.
 * *Rule:* Use **Named Exports** (`export function Name`) for all components to ensure strict import safety. Avoid `export default`.
 
+
+7. **`src/app/api/`** -> **Backend Logic.**
+* `telegram/route.ts`: Handles secure form submissions and bot notifications.
+
 # 🎨 Design System: "Deep Ocean Tech"
 
 * **Background:** `bg-background` (Slate-950: #020617).
@@ -76,12 +81,13 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 16. **Dynamic Modal Spacing:** When elements (like Select) are hidden in the Modal, increase vertical spacing (`space-y`, `mb`) to maintain visual balance and centering.
 17. **Price Integrity:** Always use `whitespace-nowrap` for currency displays (e.g., "100 000 ₸") to prevent ugly line breaks on mobile.
 18. **Dashboard Footer Grid:** For footers with many links, use a `grid-cols-2` (on mobile) strategy to avoid long vertical scrolling lists. Group links into "Widgets" (e.g., with icons and backgrounds) rather than plain text lists.
+19. **Real-Time Validation:** Forms must have immediate visual feedback (loading spinners, success checks) and disable submission buttons during API calls.
 
 # ✅ Current Project Status
 
 1. **Global Store:** Implemented (Zustand + Booking Context support + **Type Safety**).
 2. **Header:** **COMPLETED** (Glass, Smart Scroll, Phantom Anchors support, **Updated Navigation with "Tariffs"**).
-3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State, **Smart Select Logic**, **Dynamic Spacing**).
+3. **Contact Modal:** **COMPLETED** (Real-time **Telegram API Integration**, Connection Type Selector (WA/TG/Call), Error Handling, Smart Select Logic).
 4. **Hero Section:** **COMPLETED** (**"Get Offer" CTA**, **Explicit Subject Passing**).
 5. **Value Proposition:** **COMPLETED** (Sticky Storytelling Scroll).
 6. **Services Section:** **COMPLETED** (Dynamic Colors, Accordion/Expand logic, **Mobile Prices & Actions**).
@@ -110,6 +116,10 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 12. **Header 2.0:** **COMPLETED**.
 * **Layout:** Optimized for conversion. Desktop: Logo + Nav + Phone (Text) + Button. Mobile: Logo + Burger.
 * **Navigation:** "Google Ads" added as the final link. "Expertise" removed for space.
+13. **Backend Services:** **COMPLETED**.
+* **Integration:** Telegram Bot API via Next.js Route Handlers.
+* **Security:** Environment variables for Token/ChatID.
+* **Feedback:** Full cycle (Loading -> Success/Error) in UI.
 
 # 🚀 Workflow for New Tasks
 

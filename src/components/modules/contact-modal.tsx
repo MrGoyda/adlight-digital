@@ -1,7 +1,8 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { X, CheckCircle2, ArrowRight, Loader2, AlertCircle, Phone, MessageCircle, Send } from "lucide-react";
 import { useUIStore } from "@/store/ui-store"; 
 import { CONTACT_FORM } from "@/data/contact.data";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,11 @@ const GENERIC_SUBJECTS = [
   ""
 ];
 
+// Расширяем интерфейс формы, добавляя тип связи
+interface ExtendedContactFormData extends ContactFormData {
+  connectionType: 'whatsapp' | 'telegram' | 'call';
+}
+
 export function ContactModal() {
   const { isContactModalOpen, closeContactModal, bookingSubject: rawSubject } = useUIStore();
   const bookingSubject = typeof rawSubject === 'string' ? rawSubject : null;
@@ -24,15 +30,19 @@ export function ContactModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<{ phone?: string }>({});
+  const [apiError, setApiError] = useState<string | null>(null); // Ошибка API
 
   const formContent = CONTACT_FORM;
 
-  const [formData, setFormData] = useState<ContactFormData>({
+  // Инициализация состояния формы
+  const [formData, setFormData] = useState<ExtendedContactFormData>({
     name: "",
     phone: "",
-    service: formContent.fields.service.options[0].value
+    service: formContent.fields.service.options[0].value,
+    connectionType: 'whatsapp' // По умолчанию
   });
 
+  // Автовыбор услуги при открытии с контекстом
   useEffect(() => {
     if (bookingSubject) {
       const matchOption = formContent.fields.service.options.find(
@@ -44,6 +54,7 @@ export function ContactModal() {
     }
   }, [bookingSubject, formContent.fields.service.options]);
 
+  // Форматирование номера (Казахстан)
   const formatPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, "");
     if (!digits) return "";
@@ -62,8 +73,10 @@ export function ContactModal() {
     const formatted = formatPhoneNumber(e.target.value);
     setFormData(prev => ({ ...prev, phone: formatted }));
     if (errors.phone) setErrors({});
+    if (apiError) setApiError(null);
   };
 
+  // Блокировка скролла
   useEffect(() => {
     if (isContactModalOpen) {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -82,27 +95,65 @@ export function ContactModal() {
     }
   }, [isContactModalOpen]);
 
+  // --- ЛОГИКА ОТПРАВКИ ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
+
+    // Валидация телефона
     if (formData.phone.length < 18) {
       setErrors({ phone: "Введите корректный номер" });
       return;
     }
+
     setIsSubmitting(true);
-    console.log("Lead Info:", {
-        ...formData,
-        subject: bookingSubject,
-        isSpecificRequest: !showServiceSelect
-    });
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    setTimeout(() => {
-      closeContactModal();
-      setTimeout(() => setIsSuccess(false), 300);
-      setFormData({ name: "", phone: "", service: formContent.fields.service.options[0].value });
-      setErrors({});
-    }, 2500);
+
+    try {
+      // Формируем полный заголовок заявки
+      // Если есть bookingSubject (например "Кнопка в хедере"), добавляем его.
+      // Иначе просто выбранная услуга.
+      const finalSubject = bookingSubject 
+        ? `${bookingSubject} | Услуга: ${formData.service}`
+        : `Услуга: ${formData.service}`;
+
+      // Отправка на API
+      const response = await fetch("/api/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name || "Не указано",
+          phone: formData.phone,
+          connectionType: formData.connectionType, // WhatsApp/Telegram
+          subject: finalSubject,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка сервера");
+      }
+
+      // Успех
+      setIsSuccess(true);
+      
+      // Автозакрытие и сброс
+      setTimeout(() => {
+        closeContactModal();
+        setTimeout(() => setIsSuccess(false), 300);
+        setFormData({ 
+          name: "", 
+          phone: "", 
+          service: formContent.fields.service.options[0].value, 
+          connectionType: 'whatsapp' 
+        });
+        setErrors({});
+      }, 3000);
+
+    } catch (error) {
+      console.error(error);
+      setApiError("Ошибка отправки. Попробуйте написать нам в WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -139,7 +190,6 @@ export function ContactModal() {
             <div className="hidden md:flex w-2/5 bg-slate-950/50 p-8 flex-col justify-between relative border-r border-white/5 md:rounded-l-3xl overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent pointer-events-none" />
                 
-                {/* FIX: Добавил mb-10 этому блоку, чтобы список снизу не прилипал к тексту */}
                 <div className="mb-10">
                   <div className="flex items-center gap-2 mb-8">
                       <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">A</div>
@@ -213,7 +263,6 @@ export function ContactModal() {
                        </h3>
                        
                        <div className="md:hidden mb-8 p-4 rounded-xl bg-slate-950/50 border border-white/5">
-                           {/* FIX: Увеличил отступ mb-3 -> mb-6, чтобы текст не лип к галочкам */}
                            <p className="text-xs text-slate-400 mb-6 leading-relaxed">{formContent.subtitle.desc}</p>
                            <div className="space-y-2">
                              {formContent.features.map((feature, i) => (
@@ -227,7 +276,7 @@ export function ContactModal() {
                        
                        <div className={cn(
                           "relative z-10 transition-all",
-                          showServiceSelect ? "space-y-4 mb-6" : "space-y-6 mb-10"
+                          showServiceSelect ? "space-y-4 mb-6" : "space-y-6 mb-6" // Уменьшили нижний отступ, чтобы вместить кнопки связи
                        )}>
                            {/* Name Input */}
                            <div className="group">
@@ -284,7 +333,7 @@ export function ContactModal() {
                               </AnimatePresence>
                            </div>
 
-                           {/* Select */}
+                           {/* Select Service */}
                            {showServiceSelect && (
                              <motion.div 
                                 initial={{ opacity: 0, height: 0 }}
@@ -298,7 +347,41 @@ export function ContactModal() {
                                />
                              </motion.div>
                            )}
+
+                           {/* --- CONNECTION TYPE SELECTOR (NEW) --- */}
+                           <div className="space-y-1.5">
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">
+                                Куда ответить?
+                              </label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {(['whatsapp', 'telegram', 'call'] as const).map((type) => (
+                                  <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => setFormData({...formData, connectionType: type})}
+                                    className={cn(
+                                      "flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all",
+                                      formData.connectionType === type
+                                        ? "bg-blue-600/20 border-blue-500 text-blue-400 shadow-[0_0_15px_-5px_rgba(59,130,246,0.4)]"
+                                        : "bg-slate-950/50 border-white/5 text-slate-500 hover:border-white/20 hover:text-slate-300"
+                                    )}
+                                  >
+                                    {type === 'whatsapp' && <MessageCircle size={16} />}
+                                    {type === 'telegram' && <Send size={16} />}
+                                    {type === 'call' && <Phone size={16} />}
+                                    {type === 'call' ? 'Звонок' : type}
+                                  </button>
+                                ))}
+                              </div>
+                           </div>
                        </div>
+
+                       {/* API Error Message */}
+                       {apiError && (
+                         <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center">
+                           {apiError}
+                         </div>
+                       )}
 
                        <button 
                          type="submit"
