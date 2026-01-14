@@ -11,6 +11,15 @@ export interface ValueStoryBlock {
   gradient: string;
 }
 
+export const valueIntro = {
+  title: {
+    start: "Мы создаем",
+    highlight: "цифровое оружие,",
+    end: "а не просто сайты"
+  },
+  description: "Ваш бизнес заслуживает технического доминирования. Получите скорость, архитектуру и UX, которые оставляют конкурентов в прошлом веке."
+};
+
 export const valueStoryData: ValueStoryBlock[] = [
   {
     id: "speed",

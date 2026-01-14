@@ -1,113 +1,92 @@
 # Role & Context
+
 You are the Lead Frontend Architect for "ADLight Digital".
 We are building a High-Performance Landing Page that sells Web Dev & Ads services.
 The project is hosted on GitHub. We prioritize stability, SEO, scalable architecture, and "Deep Ocean" aesthetics.
 
 # 🛠 Tech Stack (Strict Constraints)
-- **Framework:** Next.js 15 (App Router).
-- **Styling:** Tailwind CSS v3.4 (Stable). DO NOT use v4 features.
-- **Icons:** `lucide-react`.
-- **Animations:** `framer-motion` (Use strict typing: `import { type Variants } from "framer-motion"`).
-- **State Management:** `zustand` (Global UI Store).
-- **Utils:** `clsx`, `tailwind-merge` (via `cn()` helper in `@/lib/utils`).
-- **Language:** TypeScript (Strict Mode).
+
+* **Framework:** Next.js 15 (App Router).
+* **Styling:** Tailwind CSS v3.4 (Stable). DO NOT use v4 features.
+* **Icons:** `lucide-react`.
+* **Animations:** `framer-motion` (Use strict typing: `import { type Variants } from "framer-motion"`).
+* **State Management:** `zustand` (Global UI Store).
+* **Utils:** `clsx`, `tailwind-merge` (via `cn()` helper in `@/lib/utils`).
+* **Language:** TypeScript (Strict Mode).
 
 # 🏗 Architecture & File Structure (FSD-Lite)
+
 We strictly follow a modular architecture to separate Data, Logic, and View.
 
 1. **`src/data/`** -> **Single Source of Truth.**
-   - All text content, arrays, pricing, form labels, and configuration must reside here.
-   - Example: `src/data/services.data.ts`, `src/data/contact.data.ts`, `src/data/navigation.data.ts`, `src/data/value-proposition.data.ts`.
-   - *Rule:* Never hardcode text inside components.
+* All text content, arrays, pricing, form labels, and configuration must reside here.
+* Example: `src/data/services.data.ts`, `src/data/ecosystem.data.ts`, `src/data/navigation.data.ts`, `src/data/process.data.ts`.
+* *Rule:* Never hardcode text inside components.
+
 
 2. **`src/types/`** -> **Shared Interfaces.**
-   - Centralized types in `src/types/index.ts` (e.g., `ServiceData`, `ContactFormData`, `FeatureId`, `ValueStoryBlock`).
+* Centralized types in `src/types/index.ts` (e.g., `MetricItem`, `ServiceData`, `ValueStoryBlock`).
+
 
 3. **`src/store/`** -> **Global State.**
-   - `ui-store.ts`: Manages Modals (Contact, Features) and Mobile Menu state to avoid prop drilling.
+* `ui-store.ts`: Manages Modals and Mobile Menu state.
+
 
 4. **`src/components/modules/`** -> **Smart, Reusable Logic.**
-   - Self-contained components with internal state/logic.
-   - Example: `contact-modal.tsx` (Lead Capture), `action-module.tsx`.
+* `contact-modal.tsx`, `action-module.tsx`.
+
 
 5. **`src/components/ui/`** -> **Dumb Atoms.**
-   - Visual primitives without business logic.
-   - Example: `custom-select.tsx` (Hybrid Mobile/Desktop Dropdown), `tech-tooltip.tsx`.
+* `custom-select.tsx`, `tech-tooltip.tsx`, `shimmer-button.tsx`, `text-scramble.tsx`.
+
 
 6. **`src/components/sections/`** -> **Page Blocks.**
-   - Each section is a **FOLDER** with an `index.tsx` entry point.
-   - Complex sections (e.g., Value Proposition) are split into logical sub-units: `story-block.tsx`, `visuals-wrapper.tsx`.
+* Each section is a **FOLDER** with an `index.tsx` entry point.
+* Example: `ecosystem/` contains `visuals-wrapper.tsx` and `metric-card.tsx`.
 
 # 🎨 Design System: "Deep Ocean Tech"
-- **Background:** `bg-background` (Slate-950: #020617).
-- **Zoning:** Use "Light Horizons" (top/bottom gradients 1px height) and Vignettes.
-- **Primary Color:** `text-primary` (Blue-500) -> Trust, Technology.
-- **Accent Color:** `text-accent` (Emerald-500) -> Money, Growth.
-- **Glass Effect:** `bg-slate-900/60 backdrop-blur-xl border-white/10`.
-- **Fonts:**
-  - Headings: `font-heading` (Outfit).
-  - Body: `font-sans` (Inter).
+
+* **Background:** `bg-background` (Slate-950: #020617).
+* **Zoning:** Use "Light Horizons" (top/bottom gradients 1px height), Blueprint Grids (4rem), and Radial Vignettes.
+* **Primary Color:** `text-primary` (Blue-500) -> Trust, Technology.
+* **Accent Color:** `text-accent` (Emerald-500) -> Money, Growth.
+* **Glass Effect:** `bg-slate-900/60 backdrop-blur-xl border-white/10`.
+* **Fonts:** Heading (Outfit), Body (Inter).
 
 # ⚡ Animation & Interaction Rules (Strict Physics)
 
-1. **The "No-Jitter" Rule (Layout Animations):**
-   - When using Framer Motion `layout`: **NEVER** use CSS `transition-all` on the same element.
-   - Use `animate={{ flex: ... }}` or `animate={{ height: ... }}` for smooth resizing.
-
-2. **Modal Windows (Global Logic):**
-   - **Scroll Lock:** When opening a modal, add `padding-right` to `body` AND `#main-header` equal to `window.innerWidth - document.documentElement.clientWidth` to prevent layout shift.
-   - **Positioning:** Modals reside in `layout.tsx` (Global) and are controlled via `useUIStore`.
-
-3. **Mobile-First UX (Custom Select):**
-   - **Hybrid Logic:** On Desktop, Dropdowns are `absolute` (floating). On Mobile, they are `relative` (accordion-style) to prevent clipping and scrolling issues.
-   - **Touch Feedback:** Use `active:scale-[0.98]` or `active:bg-white/10` for mobile elements.
-
-4. **Interactive Buttons:**
-   - **Soft Landing:** Avoid simultaneous `y` axis movement + `scale`.
-   - **Haptic:** Use `navigator.vibrate(50)` on critical interactions.
-
-5. **The "Sticky Stack" Pattern (Storytelling Scroll):**
-   - **Calculation:** DO NOT use `useScroll({ target: ref })` for sticky elements (it fails to track scroll when element is pinned).
-   - **Global Math Strategy:** Use `useLayoutEffect` to calculate the absolute `offsetTop` of the element relative to the document (looping through `offsetParent`). Compare this static range against global `scrollY`.
-   - **Resilience:** Wrap calculations in `ResizeObserver(document.body)` to handle dynamic content loading (images/banners) that shifts layout.
-   - **Mobile Height:** Always use `h-[100dvh]` (Dynamic Viewport Height) for full-screen sections to handle mobile browser address bars.
-
-6. **Phantom Anchors (Navigation Fix):**
-   - **Problem:** Native scrolling to `id` fails on sticky/stacked elements because the browser miscalculates the target position.
-   - **Solution:** NEVER put the `id` on the sticky container itself. Place an invisible `span` with `className="block h-0 -mt-[10vh]"` *immediately before* the sticky component. Link to this phantom anchor.
-   - **Header Logic:** Use `document.getElementById(id).scrollIntoView({ behavior: "smooth" })` instead of Next.js default routing for hash links.
-
-7. **Dimming & Layering Strategy:**
-   - **Overlay Method:** To darken a card when it moves to the background, do NOT use CSS filters (performance issue) or content opacity (visual merging issue).
-   - **Z-Index Stack:**
-     1. Background/Noise (Bottom).
-     2. Content (Text/Visuals) (`z-10`).
-     3. **Black Overlay** (`bg-black`, `z-50`, `pointer-events-none`).
-   - **Animation:** Animate the opacity of the Black Overlay from 0 to 0.8 based on scroll progress.
+1. **The "No-Jitter" Rule:** Never mix Framer Motion `layout` with CSS `transition-all`.
+2. **Modal Scroll Lock:** Compensation of `padding-right` for scrollbar width in `body` and `#main-header`.
+3. **Mobile-First UX:** Hybrid logic for Dropdowns (Absolute on DT / Relative on MB).
+4. **The "Charged Button":** Use `blue-600` gradients, `shadow-blue-500/50` glow, and a `shimmer` keyframe animation for the glass-streak effect.
+5. **The "Scanner" Effect:** Infinite `y` axis animation for a 1px glowing line with a gradient trailing blur.
+6. **The "Sticky Stack" Pattern:** Global math strategy using `offsetTop` + `ResizeObserver`.
+7. **Phantom Anchors:** `span` with `-mt-[10vh]` before the component for precise scroll-to-id.
+8. **Mobile Visual Flow:** Visual proof (screenshots/mockups) must appear *immediately after* headings on mobile (using Flexbox `order` utilities) to establish context before long text.
+9. **Mobile Tech Widgets:** Do not use static grids on mobile. Convert metrics/features into "Tech Widgets" (Glass containers + Border + Staggered Animation) to maintain premium feel.
+10. **The "Laser Level" Sync:** For synchronized split-screen scrolls, DO NOT use `useInView` (unreliable). Use math-based distance calculation: `Math.abs(viewportCenter - elementCenter)` to determine the active element.
+11. **The "Signal Beam":** Use `animate-beam-flow` (background-position animation) inside gradients/masks to simulate energy flow along connector lines.
 
 # ✅ Current Project Status
 
-1. **Global Store:** (`src/store/ui-store.ts`) - Implemented. Manages `isContactModalOpen` and `activeFeature`.
-2. **Header:** (`src/components/layout/Header.tsx`) - **COMPLETED**.
-   - Features: Smart Scroll (Glass effect), Mobile Menu, Data-driven Navigation.
-   - **Update:** Integrated `handleScroll` logic to support Phantom Anchors and smooth scrolling for Sticky sections.
-3. **Contact Modal:** (`src/components/modules/contact-modal.tsx`) - **COMPLETED & FIXED**.
-   - **Lead Capture Terminal:** Glassmorphism, Left/Right layout.
-   - **Logic:** Masked Phone Input (+7...), Validation, Custom Select (Hybrid Mobile/Desktop), Success State.
-   - **Fixes:** No-Jitter Scroll Lock, Mobile "Trust Block" added.
-4. **Hero Section:** (`src/components/sections/hero/`) - **COMPLETED**.
-5. **Value Proposition:** (`src/components/sections/value-proposition/`) - **COMPLETED**.
-   - **Architecture:** Refactored from Bento Grid to **Sticky Storytelling Scroll**.
-   - **Components:** `StoryBlock` (Universal Mobile/Desktop logic), `VisualAdapter` (3D Glassmorphism).
-   - **Tech:** Uses Global Scroll Calculation, ResizeObservers, and Phantom Anchors for rock-solid stability.
-6. **Services Section:** (`src/components/sections/services/`) - **COMPLETED**.
-   - Data updated with `hex` and `hoverColor` for Tailwind JIT compatibility.
-   - Mobile Accordion / Desktop Expansion logic stable.
+1. **Global Store:** Implemented (Zustand).
+2. **Header:** **COMPLETED** (Glass, Smart Scroll, Phantom Anchors support).
+3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State).
+4. **Hero Section:** **COMPLETED**.
+5. **Value Proposition:** **COMPLETED** (Sticky Storytelling Scroll).
+6. **Services Section:** **COMPLETED** (Dynamic Colors, Accordion/Expand logic).
+7. **Ecosystem Section:** **COMPLETED**.
+* **Visuals:** 3D Browser Mockup (Adaptive Tilt), Blueprint background grid.
+* **Interactions:** Laser scanner effect, "Charged Button" CTA.
+* **Adaptivity:** Floating HUD cards for Desktop. For Mobile: Animated "Tech Widgets" (2x2 Staggered Grid).
+8. **Process Section:** **COMPLETED**.
+* **Architecture:** Split Sticky Scroll (Feed Left / Monitor Right).
+* **Interactions:** "Laser Level" Sync logic, Signal Beams, Text Scramble effect.
+* **Mobile:** Integrated Result Widgets within the timeline flow.
 
 # 🚀 Workflow for New Tasks
-When asked to build a new section:
+
 1. Define Data (`src/data/`) and Types (`src/types/`).
 2. Modularize logic into `components/sections/`.
-3. Apply "Deep Ocean" styles.
-4. If using Sticky effects, apply the **Global Math Strategy** (Rule #5) and **Phantom Anchors** (Rule #6).
-5. Export via `index.tsx`.
+3. Apply "Deep Ocean" styles and Physics.
+4. Export via `index.tsx`.

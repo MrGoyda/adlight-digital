@@ -55,3 +55,26 @@ export interface ContactFormData {
   phone: string;
   service: string;
 }
+
+// --- Ecosystem / Proof of Concept Section ---
+
+export interface MetricItem {
+  id: string;
+  label: string;
+  value: string;
+  subtext: string;
+  icon: React.ElementType; // Lucide Icon Component
+  accentColor: string; // Tailwind class (e.g., "text-emerald-500")
+  position?: string; // Optional: для кастомного позиционирования в HUD (например, "top-left")
+}
+
+export interface EcosystemData {
+  heading: string;
+  subheading: string;
+  description: string[];
+  cta: {
+    text: string;
+    url: string;
+  };
+  metrics: MetricItem[];
+}
