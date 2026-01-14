@@ -97,7 +97,7 @@ export function Hero() {
           >
             {/* WhatsApp Button */}
             <Link
-              href="https://wa.me/77000000000"
+              href="https://wa.me/77071356701"
               target="_blank"
               className="relative overflow-hidden group/btn flex items-center justify-center gap-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-3.5 sm:py-4 font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95"
             >
