@@ -4,20 +4,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScanLine, Loader2, ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPhone, triggerHaptic } from "@/lib/formatters";
+import { useUIStore } from "@/store/ui-store"; // Импортируем стор
 
 interface ActionModuleProps {
   colorClass: string;
   mobileFullWidth?: boolean;
   globalPhone?: string;
   setGlobalPhone?: (v: string) => void;
+  subject?: string; // <-- ДОБАВЛЕНО: Теперь компонент знает про тему услуги
 }
 
 export function ActionModule({ 
   colorClass, 
   mobileFullWidth = false, 
   globalPhone: externalPhone, 
-  setGlobalPhone: externalSetPhone 
+  setGlobalPhone: externalSetPhone,
+  subject // <-- Деструктурируем
 }: ActionModuleProps) {
+  
   // Локальное состояние, если не передано внешнее
   const [localPhone, setLocalPhone] = useState("");
   const phone = externalPhone !== undefined ? externalPhone : localPhone;
@@ -25,6 +29,9 @@ export function ActionModule({
 
   const [status, setStatus] = useState<"idle" | "input" | "sending" | "success" | "error">("idle");
   
+  // Подключаем стор (на случай, если захотим открывать модалку после успеха)
+  const { openContactModal } = useUIStore();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length < phone.length) { setPhone(e.target.value); return; }
     const f = formatPhone(e.target.value);
@@ -34,14 +41,27 @@ export function ActionModule({
   const handleSubmit = async (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic();
+    
     if (phone.length < 18) {
       setStatus("error");
       setTimeout(() => setStatus("input"), 500);
       return;
     }
+
     setStatus("sending");
+    
+    // Имитация отправки данных
+    console.log("🚀 Fast Lead Sent:", { phone, subject }); 
+    
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    
     setStatus("success");
+    
+    // ОПЦИОНАЛЬНО: Если нужно открыть модалку для уточнения деталей после ввода номера
+    // setTimeout(() => {
+    //    openContactModal(subject);
+    // }, 1000);
+
     setTimeout(() => { setStatus("idle"); setPhone(""); }, 4000);
   };
 

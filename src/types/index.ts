@@ -78,3 +78,10 @@ export interface EcosystemData {
   };
   metrics: MetricItem[];
 }
+
+export interface AdsFeatureItem {
+  id: string;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+}

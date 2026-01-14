@@ -5,6 +5,8 @@ import { Services } from "@/components/sections/services"; // И здесь то
 import { EcosystemSection } from "@/components/sections/ecosystem";
 import { ProcessSection } from "@/components/sections/process";
 import { PricingSection } from "@/components/sections/pricing";
+import { GoogleAdsSection } from "@/components/sections/google-ads";
+import { Footer } from "@/components/layout/footer";
 
 export default function Home() {
   return (
@@ -16,6 +18,8 @@ export default function Home() {
       <EcosystemSection />
       <ProcessSection />
       <PricingSection />
+      <GoogleAdsSection />
+      <Footer />
       
     </main>
   );

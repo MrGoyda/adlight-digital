@@ -2,29 +2,29 @@ import { Phone, Instagram, Send, MessageCircle } from "lucide-react"; // Send = 
 
 export const CONTACT_DATA = {
   phone: {
-    display: "+7 (700) 123-45-67", // Замени на реальный
-    value: "+77001234567",
+    display: "+7 (707) 135-67-01", // Замени на реальный
+    value: "+77071356701",
     icon: Phone
   },
   socials: [
     {
       id: "whatsapp",
       label: "WhatsApp",
-      href: "https://wa.me/77001234567", // Замени
+      href: "https://wa.me/77071356701", // Замени
       icon: MessageCircle,
       color: "hover:text-green-500 hover:bg-green-500/10 hover:border-green-500/20"
     },
     {
       id: "telegram",
       label: "Telegram",
-      href: "https://t.me/your_username", // Замени
+      href: "https://t.me/EliseyGoidenko", // Замени
       icon: Send,
       color: "hover:text-blue-400 hover:bg-blue-400/10 hover:border-blue-400/20"
     },
     {
       id: "instagram",
       label: "Instagram",
-      href: "https://instagram.com/adlight_digital", // Замени
+      href: "https://instagram.com/mr.goyda", // Замени
       icon: Instagram,
       color: "hover:text-pink-500 hover:bg-pink-500/10 hover:border-pink-500/20"
     }

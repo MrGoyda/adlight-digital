@@ -2,15 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
-import { Calculator, CheckCircle2, MessageCircle, Zap, TrendingUp, Users, Server } from "lucide-react";
+// 1. Импортируем FileText вместо Calculator
+import { FileText, CheckCircle2, MessageCircle, Zap, TrendingUp, Users, Server } from "lucide-react";
 import { motion, useMotionValue, type Variants } from "framer-motion";
 import { HERO_DATA } from "@/data/hero.data";
 import { HeroBackground } from "./hero-background";
 import { AnimatedCounter } from "./animated-counter";
+import { useUIStore } from "@/store/ui-store"; 
 
 export function Hero() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const { openContactModal } = useUIStore();
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
     const { left, top } = e.currentTarget.getBoundingClientRect();
@@ -18,6 +21,7 @@ export function Hero() {
     mouseY.set(e.clientY - top);
   }
 
+  // ... (анимационные варианты createFloatAnimation, containerVariants, itemVariants оставляем без изменений)
   const createFloatAnimation = (delay: number, duration: number): Variants => ({
     initial: { y: 0, rotate: 0 },
     animate: {
@@ -40,18 +44,16 @@ export function Hero() {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      // ! ИСПРАВЛЕНИЕ: Увеличили pt-28 -> pt-36 (больше воздуха сверху на мобилке)
       className="relative flex h-auto w-full items-center justify-center overflow-hidden pt-36 pb-6 lg:pt-40 lg:pb-20 group bg-background"
     >
-      
-      {/* 1. ФОНОВЫЙ СЛОЙ */}
       <HeroBackground mouseX={mouseX} mouseY={mouseY} />
 
-      {/* 2. КОНТЕНТНЫЙ СЛОЙ */}
       <div className="container-width grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 items-center relative z-10 pointer-events-none w-full">
         
-        {/* ЛЕВАЯ КОЛОНКА (ТЕКСТ) */}
+        {/* ЛЕВАЯ КОЛОНКА */}
         <div className="flex flex-col items-start text-left pointer-events-auto px-4 sm:px-0">
+          
+          {/* ... (Бейдж, Заголовок, Описание - оставляем без изменений) ... */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,12 +88,14 @@ export function Hero() {
             dangerouslySetInnerHTML={{ __html: HERO_DATA.description }}
           />
 
+          {/* КНОПКИ */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8 lg:mt-12 flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
+            {/* WhatsApp Button */}
             <Link
               href="https://wa.me/77000000000"
               target="_blank"
@@ -104,15 +108,19 @@ export function Hero() {
               <span className="relative z-10">{HERO_DATA.buttons.whatsapp}</span>
             </Link>
 
-            <Link
-              href="#calculator"
-              className="group/btn flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-3.5 sm:py-4 font-medium text-white backdrop-blur-md transition-all hover:bg-white/10"
+            {/* 🔥 КНОПКА "ПОЛУЧИТЬ ПРЕДЛОЖЕНИЕ" */}
+            <button
+              // 2. Продающий текст для заголовка модалки
+              onClick={() => openContactModal("Бесплатный расчет + Стратегия")}
+              className="group/btn flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-3.5 sm:py-4 font-medium text-white backdrop-blur-md transition-all hover:bg-white/10 active:scale-95"
             >
-              <Calculator className="w-5 h-5 text-primary group-hover/btn:text-white transition-colors" />
+              {/* 3. Иконка FileText (Документ/Предложение) */}
+              <FileText className="w-5 h-5 text-primary group-hover/btn:text-white transition-colors" />
               {HERO_DATA.buttons.primary}
-            </Link>
+            </button>
           </motion.div>
 
+          {/* ... (Нижний блок с галочками - без изменений) ... */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
@@ -134,9 +142,9 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* ПРАВАЯ КОЛОНКА (ГРАФИКА - СКРЫТА НА МОБИЛКЕ) */}
+        {/* ... (ПРАВАЯ КОЛОНКА - без изменений) ... */}
         <div className="hidden lg:flex relative h-[600px] w-full items-center justify-center perspective-1000 pointer-events-auto">
-            {/* Карточка 1 */}
+             {/* ... тут код карточек без изменений ... */}
             <motion.div variants={createFloatAnimation(0, 8)} animate="animate" className="absolute top-[15%] left-[5%] z-20 w-60 p-5 rounded-2xl border border-accent/20 bg-slate-900/60 backdrop-blur-xl shadow-[0_0_30px_rgba(16,185,129,0.05)]">
                <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-accent/10 rounded-lg text-accent"><TrendingUp className="w-5 h-5" /></div>
@@ -148,7 +156,6 @@ export function Hero() {
               </div>
             </motion.div>
 
-            {/* Карточка 2 (Центр) */}
             <motion.div variants={createFloatAnimation(2, 10)} animate="animate" className="absolute top-[35%] left-[30%] z-30 w-80 p-6 rounded-2xl border border-primary/30 bg-slate-900/80 backdrop-blur-2xl shadow-[0_0_60px_rgba(59,130,246,0.15)]">
                <div className="absolute -top-3 -right-3 px-3 py-1 bg-primary text-xs font-bold text-white rounded-full shadow-lg shadow-blue-500/30">CORE SYSTEM</div>
               <div className="flex items-center gap-3 mb-5">
@@ -161,7 +168,6 @@ export function Hero() {
               </div>
             </motion.div>
 
-            {/* Карточка 3 */}
             <motion.div variants={createFloatAnimation(4, 9)} animate="animate" className="absolute bottom-[10%] right-[-5%] z-20 w-60 p-5 rounded-2xl border border-blue-400/20 bg-slate-900/60 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.05)]">
                <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Users className="w-5 h-5" /></div>

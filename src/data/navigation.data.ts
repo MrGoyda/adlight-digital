@@ -18,13 +18,19 @@ export const NAV_LINKS = [
     type: "link"
   },
   {
-    label: "Экспертиза",
-    href: "#expertise",
-    type: "link" // Блок про ADLight Business
-  },
-  {
     label: "Процесс",
     href: "#process",
+    type: "link"
+  },
+  {
+    label: "Тарифы",
+    href: "#pricing",
+    type: "link"
+  },
+  // Перенесли в конец и убрали "Экспертизу"
+  {
+    label: "Google Ads",
+    href: "#google-ads",
     type: "link"
   }
 ];

@@ -21,6 +21,7 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 1. **`src/data/`** -> **Single Source of Truth.**
 * All text content, arrays, pricing, form labels, and configuration must reside here.
 * Example: `src/data/services.data.ts`, `src/data/ecosystem.data.ts`, `src/data/navigation.data.ts`, `src/data/process.data.ts`, `src/data/pricing.data.ts`.
+* *Added:* `src/data/google-ads.data.ts`, `src/data/footer.data.ts`, `src/data/contact.data.ts`.
 * *Rule:* Never hardcode text inside components.
 
 
@@ -69,15 +70,21 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 10. **The "Laser Level" Sync:** For synchronized split-screen scrolls, DO NOT use `useInView` (unreliable). Use math-based distance calculation: `Math.abs(viewportCenter - elementCenter)` to determine the active element.
 11. **The "Signal Beam":** Use `animate-beam-flow` (background-position animation) inside gradients/masks to simulate energy flow along connector lines.
 12. **The "Smart Booking" Context:** When clicking "Buy/Order" buttons, pass the specific item title (e.g., Tariff Name) to the Global Store (`bookingSubject`) before opening the Modal.
+13. **Safe Event Handling:** Never pass `onClick` events directly to Store functions (e.g., `onClick={openModal}`). Always use arrow functions `() => openModal()` or explicit arguments to prevent Event Objects from polluting state and causing Runtime Errors.
+14. **Smart Form Logic:** In `ContactModal`, hide the "Service Select" dropdown if a specific `bookingSubject` (e.g., "Tariff Start") is active. Show it only for generic subjects ("Discuss Project", "Free Calculation").
+15. **Mobile Card Completeness:** Mobile cards (Services/Pricing) must include explicit Price and Action buttons (`ActionModule`) directly within the card, not just descriptions.
+16. **Dynamic Modal Spacing:** When elements (like Select) are hidden in the Modal, increase vertical spacing (`space-y`, `mb`) to maintain visual balance and centering.
+17. **Price Integrity:** Always use `whitespace-nowrap` for currency displays (e.g., "100 000 ₸") to prevent ugly line breaks on mobile.
+18. **Dashboard Footer Grid:** For footers with many links, use a `grid-cols-2` (on mobile) strategy to avoid long vertical scrolling lists. Group links into "Widgets" (e.g., with icons and backgrounds) rather than plain text lists.
 
 # ✅ Current Project Status
 
-1. **Global Store:** Implemented (Zustand + Booking Context support).
-2. **Header:** **COMPLETED** (Glass, Smart Scroll, Phantom Anchors support).
-3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State, **Context-Aware Dynamic Titles**).
-4. **Hero Section:** **COMPLETED**.
+1. **Global Store:** Implemented (Zustand + Booking Context support + **Type Safety**).
+2. **Header:** **COMPLETED** (Glass, Smart Scroll, Phantom Anchors support, **Updated Navigation with "Tariffs"**).
+3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State, **Smart Select Logic**, **Dynamic Spacing**).
+4. **Hero Section:** **COMPLETED** (**"Get Offer" CTA**, **Explicit Subject Passing**).
 5. **Value Proposition:** **COMPLETED** (Sticky Storytelling Scroll).
-6. **Services Section:** **COMPLETED** (Dynamic Colors, Accordion/Expand logic).
+6. **Services Section:** **COMPLETED** (Dynamic Colors, Accordion/Expand logic, **Mobile Prices & Actions**).
 7. **Ecosystem Section:** **COMPLETED**.
 * **Visuals:** 3D Browser Mockup (Adaptive Tilt), Blueprint background grid.
 * **Interactions:** Laser scanner effect, "Charged Button" CTA.
@@ -85,12 +92,24 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 8. **Process Section:** **COMPLETED**.
 * **Architecture:** Split Sticky Scroll (Feed Left / Monitor Right).
 * **Interactions:** "Laser Level" Sync logic, Signal Beams, Text Scramble effect.
-* **Mobile:** Integrated Result Widgets within the timeline flow.
+* **Mobile:** Integrated Result Widgets within the timeline flow, **Optimized Padding (pb-0)**.
 9. **Pricing Section (Engagement Models):** **COMPLETED**.
 * **Architecture:** Data-driven tiers (Partner Start / Business Launch / Ecosystem).
 * **Interactions:** Smart Booking (Clicking passes context to Modal).
 * **Visuals:** Uniform Height Cards, Mobile-safe Badges (`!overflow-visible`), "Deep Ocean" gradients.
 * **Navigation:** "Separate Services" footer link strategy.
+10. **Google Ads Section:** **COMPLETED**.
+* **Visuals:** "Search Console" abstraction, Metrics Grid.
+* **Component:** `GoogleAdsSection` with `PromoBanner` (Special 100k KZT offer).
+* **Data:** Localized Russian content with "Deep Semantic" focus.
+11. **Footer (The Event Horizon):** **COMPLETED**.
+* **Architecture:** Merged "Final CTA" and "Navigation" into one monolithic component.
+* **Layout:** Dashboard-style grid. Mobile: 2x2 Columns. Desktop: Full width.
+* **Visuals:** Widgetized "Technology" links (Icons + Box style).
+* **Data:** Dynamic `footer.data.ts` with highlighting support.
+12. **Header 2.0:** **COMPLETED**.
+* **Layout:** Optimized for conversion. Desktop: Logo + Nav + Phone (Text) + Button. Mobile: Logo + Burger.
+* **Navigation:** "Google Ads" added as the final link. "Expertise" removed for space.
 
 # 🚀 Workflow for New Tasks
 

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, ChevronRight, ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "@/data/navigation.data";
-import { CONTACT_DATA } from "@/data/contact.data"; // Данные контактов
-import { useUIStore } from "@/store/ui-store"; // Стор
+import { CONTACT_DATA } from "@/data/contact.data";
+import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
 
 interface MobileMenuProps {
@@ -25,6 +25,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
+  // Варианты анимации (без изменений)
   const menuVariants: Variants = {
     closed: { x: "100%", opacity: 0 },
     open: { 
@@ -44,9 +45,22 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     open: { x: 0, opacity: 1 }
   };
 
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
+    onClose();
+    if (href.startsWith("#")) {
+       // Даем время меню закрыться, потом скроллим
+       setTimeout(() => {
+           const element = document.getElementById(href.replace("#", ""));
+           if (element) {
+               element.scrollIntoView({ behavior: "smooth", block: "start" });
+           }
+       }, 300);
+    }
+  };
+
   const handleOpenModal = () => {
     onClose();
-    // Небольшая задержка, чтобы меню успело закрыться перед открытием модалки
+    // Безопасный вызов с задержкой
     setTimeout(() => openContactModal(), 300);
   };
 
@@ -87,29 +101,39 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             >
               {NAV_LINKS.map((item, i) => (
                 <motion.div key={i} variants={itemVariants}>
-                  {/* ...Логика рендера ссылок (без изменений)... */}
-                  {/* Если item.type === dropdown ... else Link ... */}
+                  
                    {item.type === "dropdown" ? (
                     <div className="space-y-3">
                       <div className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">{item.label}</div>
                       <div className="grid gap-2">
                         {item.items?.map((subItem) => (
-                          <Link key={subItem.href} href={subItem.href} onClick={onClose} className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all">
-                             <div className="p-2 rounded-lg bg-slate-950 text-slate-400 group-hover:text-primary transition-colors"><subItem.icon size={18} /></div>
+                          <Link 
+                              key={subItem.label} 
+                              href={subItem.href} 
+                              onClick={(e) => handleScroll(e, subItem.href)} 
+                              className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
+                          >
+                             <div className="p-2 rounded-lg bg-slate-950 text-slate-400 group-hover:text-primary transition-colors">
+                                {subItem.icon && <subItem.icon size={18} />}
+                             </div>
                              <div><div className="text-sm font-medium text-slate-200 group-hover:text-white">{subItem.label}</div></div>
                           </Link>
                         ))}
                       </div>
                     </div>
                   ) : (
-                    <Link href={item.href} onClick={onClose} className="flex items-center justify-between text-2xl font-heading font-bold text-slate-300 hover:text-white transition-colors py-2 border-b border-white/5">
+                    <Link 
+                        href={item.href} 
+                        onClick={(e) => handleScroll(e, item.href)}
+                        className="flex items-center justify-between text-2xl font-heading font-bold text-slate-300 hover:text-white transition-colors py-2 border-b border-white/5"
+                    >
                       {item.label}<ChevronRight className="text-slate-600" />
                     </Link>
                   )}
                 </motion.div>
               ))}
 
-              {/* CONTACTS BLOCK (NEW) */}
+              {/* CONTACTS BLOCK */}
               <motion.div variants={itemVariants} className="mt-4 pt-6 border-t border-white/5">
                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Контакты</div>
                  

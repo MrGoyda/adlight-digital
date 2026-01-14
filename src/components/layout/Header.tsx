@@ -1,10 +1,12 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { useScroll, useMotionValueEvent } from "framer-motion";
 import { Menu, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/data/navigation.data";
+import { CONTACT_DATA } from "@/data/contact.data";
 import { MobileMenu } from "./mobile-menu";
 import { useUIStore } from "@/store/ui-store";
 
@@ -15,35 +17,20 @@ export function Header() {
   const { openContactModal } = useUIStore();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0;
     if (latest > 50 && !isScrolled) setIsScrolled(true);
     if (latest <= 50 && isScrolled) setIsScrolled(false);
   });
 
-  // --- 🔥 ФИНАЛЬНАЯ ВЕРСИЯ СКРОЛЛА ---
-  // Работает в связке с "Фантомным якорем" в StoryBlock.
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
     if (href.startsWith("#")) {
-      e.preventDefault(); // Отменяем стандартный переход
-
+      e.preventDefault();
       const targetId = href.replace("#", "");
-      // Ищем элемент по ID. В StoryBlock ID теперь висит на невидимом span'е выше контента.
       const elem = document.getElementById(targetId);
-
       if (elem) {
-        // Просто и надежно скроллим к этому span'у.
-        // Так как span имеет absolute -top-24, он автоматически даст нужный отступ для хедера.
-        elem.scrollIntoView({ 
-          behavior: "smooth",
-          block: "start" 
-        });
-        
-        // Обновляем URL без перезагрузки и прыжков
+        elem.scrollIntoView({ behavior: "smooth", block: "start" });
         window.history.pushState(null, "", href);
       }
     }
-    
-    // Закрываем мобильное меню
     if (isMobileMenuOpen) setIsMobileMenuOpen(false);
   };
 
@@ -63,7 +50,6 @@ export function Header() {
           {/* 1. Логотип */}
           <Link 
             href="/" 
-            // Клик по лого плавно возвращает наверх
             onClick={(e) => {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -74,7 +60,7 @@ export function Header() {
           </Link>
 
           {/* 2. Навигация (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-white/5 border border-white/5 backdrop-blur-md">
+          <nav className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-white/5 border border-white/5 backdrop-blur-md mx-4">
             {NAV_LINKS.map((link) => {
               // --- DROPDOWN ---
               if (link.type === "dropdown") {
@@ -91,9 +77,9 @@ export function Header() {
                         
                         {link.items?.map((item) => (
                            <Link
-                             key={item.href}
+                             key={item.label}
                              href={item.href}
-                             onClick={(e) => handleScroll(e, item.href)} // <-- Скролл обработчик
+                             onClick={(e) => handleScroll(e, item.href)}
                              className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/item"
                            >
                              <div className="mt-0.5 p-1.5 rounded-lg bg-slate-800 text-slate-400 group-hover/item:text-primary group-hover/item:bg-primary/10 transition-colors">
@@ -120,7 +106,7 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={(e) => handleScroll(e, link.href)} // <-- Скролл обработчик
+                  onClick={(e) => handleScroll(e, link.href)}
                   className="px-5 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
                 >
                   {link.label}
@@ -129,18 +115,32 @@ export function Header() {
             })}
           </nav>
 
-          {/* 3. Кнопки */}
-          <div className="flex items-center gap-3">
+          {/* 3. Правая часть (Телефон + Кнопка) */}
+          <div className="flex items-center gap-4">
+              
+              {/* --- Desktop: Только Телефон (Соцсети убрали) --- */}
+              <div className="hidden xl:flex items-center gap-4 mr-2 border-r border-white/10 pr-6 h-8">
+                <a 
+                  href={`tel:${CONTACT_DATA.phone.value}`}
+                  className="flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                >
+                  <CONTACT_DATA.phone.icon size={16} className="text-primary" />
+                  <span className="whitespace-nowrap font-heading tracking-wide">{CONTACT_DATA.phone.display}</span>
+                </a>
+              </div>
+
+             {/* Кнопка Обсудить */}
              <button
-               onClick={openContactModal}
+               onClick={() => openContactModal()}
                className="hidden md:flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all"
              >
                Обсудить проект
              </button>
 
+             {/* Бургер меню (Мобайл) */}
              <button 
                onClick={() => setIsMobileMenuOpen(true)}
-               className="md:hidden p-2 text-slate-200 hover:text-white bg-white/5 rounded-full hover:bg-white/10 transition-colors"
+               className="lg:hidden p-2 text-slate-200 hover:text-white bg-white/5 rounded-full hover:bg-white/10 transition-colors"
              >
                <Menu size={24} />
              </button>
