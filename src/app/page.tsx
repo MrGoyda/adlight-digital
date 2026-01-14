@@ -4,6 +4,7 @@ import { ValueProposition } from "@/components/sections/value-proposition"; // N
 import { Services } from "@/components/sections/services"; // И здесь тоже
 import { EcosystemSection } from "@/components/sections/ecosystem";
 import { ProcessSection } from "@/components/sections/process";
+import { PricingSection } from "@/components/sections/pricing";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Services />
       <EcosystemSection />
       <ProcessSection />
+      <PricingSection />
       
     </main>
   );

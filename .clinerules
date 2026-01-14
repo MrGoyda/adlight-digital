@@ -20,7 +20,7 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 
 1. **`src/data/`** -> **Single Source of Truth.**
 * All text content, arrays, pricing, form labels, and configuration must reside here.
-* Example: `src/data/services.data.ts`, `src/data/ecosystem.data.ts`, `src/data/navigation.data.ts`, `src/data/process.data.ts`.
+* Example: `src/data/services.data.ts`, `src/data/ecosystem.data.ts`, `src/data/navigation.data.ts`, `src/data/process.data.ts`, `src/data/pricing.data.ts`.
 * *Rule:* Never hardcode text inside components.
 
 
@@ -29,7 +29,7 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 
 
 3. **`src/store/`** -> **Global State.**
-* `ui-store.ts`: Manages Modals and Mobile Menu state.
+* `ui-store.ts`: Manages Modals, Mobile Menu state, and **Booking Context** (Subject passing).
 
 
 4. **`src/components/modules/`** -> **Smart, Reusable Logic.**
@@ -43,6 +43,7 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 6. **`src/components/sections/`** -> **Page Blocks.**
 * Each section is a **FOLDER** with an `index.tsx` entry point.
 * Example: `ecosystem/` contains `visuals-wrapper.tsx` and `metric-card.tsx`.
+* *Rule:* Use **Named Exports** (`export function Name`) for all components to ensure strict import safety. Avoid `export default`.
 
 # 🎨 Design System: "Deep Ocean Tech"
 
@@ -51,6 +52,7 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 * **Primary Color:** `text-primary` (Blue-500) -> Trust, Technology.
 * **Accent Color:** `text-accent` (Emerald-500) -> Money, Growth.
 * **Glass Effect:** `bg-slate-900/60 backdrop-blur-xl border-white/10`.
+* **Mobile Visibility:** Use `border-white/10` (not `white/5`) for borders on mobile to ensure visibility against deep backgrounds.
 * **Fonts:** Heading (Outfit), Body (Inter).
 
 # ⚡ Animation & Interaction Rules (Strict Physics)
@@ -66,12 +68,13 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 9. **Mobile Tech Widgets:** Do not use static grids on mobile. Convert metrics/features into "Tech Widgets" (Glass containers + Border + Staggered Animation) to maintain premium feel.
 10. **The "Laser Level" Sync:** For synchronized split-screen scrolls, DO NOT use `useInView` (unreliable). Use math-based distance calculation: `Math.abs(viewportCenter - elementCenter)` to determine the active element.
 11. **The "Signal Beam":** Use `animate-beam-flow` (background-position animation) inside gradients/masks to simulate energy flow along connector lines.
+12. **The "Smart Booking" Context:** When clicking "Buy/Order" buttons, pass the specific item title (e.g., Tariff Name) to the Global Store (`bookingSubject`) before opening the Modal.
 
 # ✅ Current Project Status
 
-1. **Global Store:** Implemented (Zustand).
+1. **Global Store:** Implemented (Zustand + Booking Context support).
 2. **Header:** **COMPLETED** (Glass, Smart Scroll, Phantom Anchors support).
-3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State).
+3. **Contact Modal:** **COMPLETED** (Masks, Validation, Success State, **Context-Aware Dynamic Titles**).
 4. **Hero Section:** **COMPLETED**.
 5. **Value Proposition:** **COMPLETED** (Sticky Storytelling Scroll).
 6. **Services Section:** **COMPLETED** (Dynamic Colors, Accordion/Expand logic).
@@ -83,10 +86,15 @@ We strictly follow a modular architecture to separate Data, Logic, and View.
 * **Architecture:** Split Sticky Scroll (Feed Left / Monitor Right).
 * **Interactions:** "Laser Level" Sync logic, Signal Beams, Text Scramble effect.
 * **Mobile:** Integrated Result Widgets within the timeline flow.
+9. **Pricing Section (Engagement Models):** **COMPLETED**.
+* **Architecture:** Data-driven tiers (Partner Start / Business Launch / Ecosystem).
+* **Interactions:** Smart Booking (Clicking passes context to Modal).
+* **Visuals:** Uniform Height Cards, Mobile-safe Badges (`!overflow-visible`), "Deep Ocean" gradients.
+* **Navigation:** "Separate Services" footer link strategy.
 
 # 🚀 Workflow for New Tasks
 
 1. Define Data (`src/data/`) and Types (`src/types/`).
 2. Modularize logic into `components/sections/`.
 3. Apply "Deep Ocean" styles and Physics.
-4. Export via `index.tsx`.
+4. Export via `index.tsx` (Named Export).

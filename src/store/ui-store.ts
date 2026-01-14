@@ -3,18 +3,18 @@ import { create } from 'zustand';
 import { FeatureId } from '@/types';
 
 interface UIState {
-  // Features Modal
+  // Features Modal (Существующий функционал)
   activeFeature: FeatureId | null;
   openFeature: (id: FeatureId) => void;
   closeFeature: () => void;
 
-  // Contact Modal
+  // Contact Modal (Обновленный функционал)
   isContactModalOpen: boolean;
-  openContactModal: () => void;
+  bookingSubject: string | null; // <-- Новое поле: тема заявки
+  openContactModal: (subject?: string) => void; // <-- Теперь принимает опциональный аргумент
   closeContactModal: () => void;
 }
 
-// <UIState> указывает TS, какой формы должен быть стейт
 export const useUIStore = create<UIState>((set) => ({
   // Features
   activeFeature: null,
@@ -23,6 +23,17 @@ export const useUIStore = create<UIState>((set) => ({
 
   // Contact Modal
   isContactModalOpen: false,
-  openContactModal: () => set({ isContactModalOpen: true }),
-  closeContactModal: () => set({ isContactModalOpen: false }),
+  bookingSubject: null,
+  
+  // Открытие модалки: если передали тему (subject), сохраняем её
+  openContactModal: (subject) => set({ 
+    isContactModalOpen: true, 
+    bookingSubject: subject || null 
+  }),
+  
+  // Закрытие модалки: сбрасываем тему, чтобы она не висела в памяти
+  closeContactModal: () => set({ 
+    isContactModalOpen: false, 
+    bookingSubject: null 
+  }),
 }));
